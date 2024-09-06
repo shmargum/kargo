@@ -58,8 +58,8 @@ func GetDesiredRevisions(
 				targetPromoMechanism = update
 			}
 			desiredOrigin := freight.GetDesiredOrigin(stage, targetPromoMechanism)
-			repoURL := app.Spec.Source.RepoURL
-			chartName := app.Spec.Source.Chart
+			repoURL := source.RepoURL
+			chartName := source.Chart
 			if !strings.Contains(repoURL, "://") {
 				// In Argo CD ApplicationSource, if a repo URL specifies no protocol and a
 				// chart name is set (already confirmed at this point), we can assume that
