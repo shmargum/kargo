@@ -218,17 +218,34 @@ func (h *applicationHealth) GetApplicationHealth(
 				return kargoapi.HealthStateUnknown, healthStatus, syncStatus, err
 			}
 		}
+	}
 
-		// check sync status again after a small wait
-		if healthState, err := stageHealthForAppSync(app, desiredRevisions); err != nil {
-			return healthState, healthStatus, syncStatus, err
-		}
+	// If the application is currently syncing, we should not assess its health
+	// NOTE: this is explicitly a departure from current Kargo behavior
+	// Kargo previously only checks sync status if updating an argocd revision (non gitops)
+	if healthState, err := syncCheck(app); err != nil {
+		return healthState, healthStatus, syncStatus, err
 	}
 
 	// With all the above checks passed, we can now assume the Argo CD
 	// Application's health state is reliable.
 	healthState, err := stageHealthForAppHealth(app)
 	return healthState, healthStatus, syncStatus, err
+}
+
+// only check sync state
+func syncCheck(app *argocd.Application) (kargoapi.HealthState, error) {
+	if app.Operation != nil && app.Operation.Sync != nil {
+		if app.Status.OperationState == nil || app.Status.OperationState.FinishedAt.IsZero() {
+			err := fmt.Errorf(
+				"Argo CD Application %q in namespace %q is being synced",
+				app.GetName(),
+				app.GetNamespace(),
+			)
+			return kargoapi.HealthStateUnknown, err
+		}
+	}
+	return kargoapi.HealthStateHealthy, nil
 }
 
 // stageHealthForAppSync returns the v1alpha1.HealthState for an Argo CD
