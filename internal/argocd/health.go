@@ -205,7 +205,7 @@ func (h *applicationHealth) GetApplicationHealth(
 		//
 		// TODO: revisit this when https://github.com/argoproj/argo-cd/pull/18660
 		// 	 is merged and released.
-		cooldown := app.Status.OperationState.FinishedAt.Time.Add(10 * time.Second)
+		cooldown := app.Status.OperationState.FinishedAt.Time.Add(60 * time.Second)
 		if duration := time.Until(cooldown); duration > 0 {
 			time.Sleep(duration)
 
