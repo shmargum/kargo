@@ -218,6 +218,11 @@ func (h *applicationHealth) GetApplicationHealth(
 				return kargoapi.HealthStateUnknown, healthStatus, syncStatus, err
 			}
 		}
+
+		// check sync status again after a small wait
+		if healthState, err := stageHealthForAppSync(app, desiredRevisions); err != nil {
+			return healthState, healthStatus, syncStatus, err
+		}
 	}
 
 	// With all the above checks passed, we can now assume the Argo CD
