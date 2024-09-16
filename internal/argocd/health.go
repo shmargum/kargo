@@ -242,7 +242,7 @@ func syncCheck(app *argocd.Application) (kargoapi.HealthState, error) {
 				app.GetName(),
 				app.GetNamespace(),
 			)
-			return kargoapi.HealthStateUnknown, err
+			return kargoapi.HealthStateProgressing, err
 		}
 	}
 	return kargoapi.HealthStateHealthy, nil
